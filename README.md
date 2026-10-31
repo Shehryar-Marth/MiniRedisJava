@@ -1,77 +1,28 @@
+# MiniRedisJava
 
+## Projektbeschreibung
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.util.*;
+MiniRedisJava ist ein Redis-inspirierter Key-Value-Server, der in Java entwickelt wurde. Das Projekt dient dazu, grundlegende Konzepte der Client-Server-Kommunikation und der Datenverwaltung praktisch umzusetzen.
 
-/** A small persistent record store; not a full SQL database. */
-public class MiniDatabase {
-    private static final Path FILE = Path.of("minidb.tsv");
-    private final Map<String, String> rows = new LinkedHashMap<>();
+## Funktionen
 
-    public MiniDatabase() throws IOException { load(); }
+- Speicherung und Verwaltung von Schlüssel-Wert-Paaren
+- Kommunikation zwischen Client und Server über TCP
+- Unterstützung mehrerer gleichzeitiger Client-Verbindungen
+- Abrufen, Ändern und Löschen von Einträgen
+- Speicherung von Daten über einen Neustart hinweg
 
-    private void load() throws IOException {
-        if (!Files.exists(FILE)) return;
-        for (String line : Files.readAllLines(FILE, StandardCharsets.UTF_8)) {
-            String[] parts = line.split("\\t", 2);
-            if (parts.length == 2) rows.put(parts[0], decode(parts[1]));
-        }
-    }
+## Verwendete Technologien
 
-    private void save() throws IOException {
-        List<String> lines = new ArrayList<>();
-        rows.forEach((k, v) -> lines.add(k + "\\t" + encode(v)));
-        Files.write(FILE, lines, StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    }
+- Java
+- TCP/IP
+- Client-Server-Architektur
+- Dateioperationen
 
-    private static String encode(String s) {
-        return s.replace("\\", "\\\\").replace("\t", "\\t").replace("\n", "\\n");
-    }
-    private static String decode(String s) {
-        StringBuilder out = new StringBuilder();
-        boolean esc = false;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (esc) {
-                out.append(c == 't' ? '\t' : c == 'n' ? '\n' : c);
-                esc = false;
-            } else if (c == '\\') esc = true;
-            else out.append(c);
-        }
-        if (esc) out.append('\\');
-        return out.toString();
-    }
+## Lernziele
 
-    private void run() throws IOException {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("MiniDatabase — commands: INSERT id value | GET id | DELETE id | LIST | EXIT");
-        while (true) {
-            System.out.print("db> ");
-            if (!sc.hasNextLine()) return;
-            String line = sc.nextLine().trim();
-            if (line.equalsIgnoreCase("EXIT")) return;
-            if (line.equalsIgnoreCase("LIST")) {
-                rows.forEach((k, v) -> System.out.println(k + " = " + v));
-                continue;
-            }
-            String[] p = line.split("\\s+", 3);
-            if (p.length < 2) { System.out.println("Invalid command"); continue; }
-            switch (p[0].toUpperCase()) {
-                case "INSERT" -> {
-                    if (p.length < 3) { System.out.println("Usage: INSERT id value"); break; }
-                    rows.put(p[1], p[2]); save(); System.out.println("OK");
-                }
-                case "GET" -> System.out.println(rows.getOrDefault(p[1], "(nil)"));
-                case "DELETE" -> {
-                    System.out.println(rows.remove(p[1]) == null ? "0" : "1");
-                    save();
-                }
-                default -> System.out.println("Unknown command");
-            }
-        }
-    }
-    public static void main(String[] args) throws IOException { new MiniDatabase().run(); }
-}
+Mit diesem Projekt möchte ich meine Kenntnisse in Java, Netzwerkkommunikation, Datenstrukturen und Softwareentwicklung vertiefen.
+
+## Status
+
+Ein Lernprojekt, das kontinuierlich erweitert und verbessert wird.
